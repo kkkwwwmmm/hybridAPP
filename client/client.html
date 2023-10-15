@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>나의 영혼</title>
+</head>
+<body>
+
+<button onclick="getDataFromAPI()">누르는 것</button>
+
+<p id="dataDisplay"></p>
+
+<script>
+  function getDataFromAPI() {
+    const apiEndpoint = 'http://localhost:9402/hi';  
+
+    fetch(apiEndpoint)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.text();  
+      })
+      .then(data => {
+        const dataDisplay = document.getElementById('dataDisplay');
+        dataDisplay.textContent = data;
+      })
+      .catch(error => console.error('Error:', error));
+  }
+</script>
+
+</body>
+</html>
+
