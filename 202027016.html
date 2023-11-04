@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>snake</title>
+    <style>
+        #Mycanvas{
+            margin: 10px;
+            width: 95%;
+            height: 80%;
+            border: 1px black solid;
+        }
+        #timer {
+            text-align: center;
+            top: 10px;
+            left: 10px;
+            font-size: 20px;
+            color: black;
+        }
+        #Snakelength{
+            text-align: center;
+            top: 10px;
+            left: 10px;
+            font-size: 20px;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+    <div id="timer">경과 시간: 0 seconds</div>
+    <div id="Snakelength">뱀 길이: 0</div>
+    <canvas id="Mycanvas"></canvas>
+    <script>
+        const canvas = document.getElementById('Mycanvas');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const radius = 30;
+        let mouseX = 0;
+        let mouseY = 0;
+        let x = canvas.width / 2; // 초기 위치 중앙
+        let y = canvas.height / 2; // 초기 위치 중앙으로
+        let circleCount = 3;
+        let circleSpacing = radius * 2; // 원 사이의 간격
+        let circles = [];
+        let randomCircle = null;
+        let randomCircleInterval = 10000; // 10초마다 랜덤 원 생성
+        let shapes = []; // 도형 정보 배열
+        let shapeInterval = 5000; // 5초마다 도형 생성
+
+        let startTime = Date.now(); // 프로그램 시작 시간 기록
+        const timerElement = document.getElementById('timer');
+        const Snakelength = document.getElementById('Snakelength');
+
+        function Snakelengthup(){
+            Snakelength.textContent = `뱀 길이: ${circleCount} `;
+            requestAnimationFrame(Snakelengthup)
+        }
+
+        function drawTimer() {
+            const currentTime = Date.now();
+            const elapsedSeconds = Math.floor((currentTime - startTime) / 1000); // 경과 시간 계산 (밀리초를 초로 변환)
+
+            // 시간을 HTML 요소에 업데이트
+            timerElement.textContent = `경과 시간: ${elapsedSeconds} seconds`;
+
+            requestAnimationFrame(drawTimer); // 시간 업데이트를 반복
+        }
+        for (let i = 0; i < circleCount; i++) {
+            circles.push({ x: 0, y: canvas.height / 2 });
+        }
+    
+        //원의 수 배열 
+        const easing = 0.01; // 보간 계수  easing 변수의 값을 조정하여 이동의 부드러움 정도를 조절할 수 있습니다. 값이 작을수록 움직임이 부드럽고 천천히 따라오게 됩니다.
+
+        canvas.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX - canvas.getBoundingClientRect().left;
+            mouseY = e.clientY - canvas.getBoundingClientRect().top;
+        });
+        canvas.addEventListener('click', () => {
+            // 클릭 이벤트가 발생하면 속도를 더 빠르게 변경
+            easing = 0.04;
+            // 2초 후에 다시 원래 
+            setTimeout(() => {
+                easing = 0.01;
+            }, 2000);
+        });
+        
+
+
+        function createRandomCircle() {
+            // 랜덤 위치에 붉은 원 생성
+            const randomX = Math.random() * canvas.width;
+            const randomY = Math.random() * canvas.height;
+            randomCircle = { x: randomX, y: randomY, radius: 10, opacity: 1 };
+        
+            // 10초마다 랜덤 원 생성
+            setTimeout(createRandomCircle, randomCircleInterval);
+        }
+        function drawRandomCircle() {
+            requestAnimationFrame(drawRandomCircle);
+        
+            if (randomCircle && randomCircle.opacity > 0) {
+                ctx.beginPath();
+                ctx.fillStyle = `rgba(255, 0, 0, ${randomCircle.opacity})`;
+                ctx.arc(randomCircle.x, randomCircle.y, randomCircle.radius, 0, 2 * Math.PI);
+                ctx.fill();
+        
+                // 투명도가 0이 될 때까지 2초마다 감소
+                setTimeout(() => {
+                    randomCircle.opacity -= 0.01;
+                }, 2000);
+                if (randomCircle.opacity <= 0) {
+                    // 투명도가 0 이하일 때 원 삭제
+                    randomCircle = null;
+                }
+            }
+        }
+            
+            
+        
+        
+        
+       
+        // 초기 위치와 방향 설정
+        function createRandomShape() 
+        {
+                // 랜덤 도형 정보 생성
+                const randomSide = Math.floor(Math.random() * 4); // 0, 1, 2, 3 중 하나 선택 (0: 위, 1: 오른쪽, 2: 아래, 3: 왼쪽)
+            
+                let shapeX, shapeY;
+            
+                switch (randomSide) {
+                    case 0: // 위에서 아래로
+                        shapeX = Math.random() * canvas.width;
+                        shapeY = -20; // 화면 위에서 시작
+                        break;
+                    case 1: // 오른쪽에서 왼쪽으로
+                        shapeX = canvas.width + 20; // 화면 오른쪽에서 시작
+                        shapeY = Math.random() * canvas.height;
+                        break;
+                    case 2: // 아래에서 위로
+                        shapeX = Math.random() * canvas.width;
+                        shapeY = canvas.height + 20; // 화면 아래에서 시작
+                        break;
+                    case 3: // 왼쪽에서 오른쪽으로
+                        shapeX = -20; // 화면 왼쪽에서 시작
+                        shapeY = Math.random() * canvas.height;
+                        break;
+                }
+            
+                const shapeType = Math.random() < 0.33 ? 'circle' : (Math.random() < 0.5 ? 'triangle' : 'rectangle');
+                const shapeSpeed = 1.5; // 고정된 속도
+            
+                shapes.push({ x: shapeX, y: shapeY, type: shapeType, speed: shapeSpeed });
+            
+        
+
+                 // 5초마다 랜덤 도형 생성
+                setTimeout(createRandomShape, shapeInterval);
+                // shapeInterval 값을 5초마다 감소
+                if (shapeInterval > 1000) { // shapeInterval이 1초 이상일 때만 계속 감소하도록 조건 추가
+                shapeInterval -= 200; // 200밀리초(0.2초)씩 shapeInterval 감소
+                }
+        }
+        function drawShapes() {
+            requestAnimationFrame(drawShapes);
+        
+            for (let i = 0; i < shapes.length; i++) {
+                const shape = shapes[i];
+        
+                ctx.save(); // 현재 상태를 저장
+        
+                // 도형 위치로 이동
+                ctx.translate(shape.x, shape.y);
+        
+                // 도형 회전 (랜덤한 각도로 회전)
+                const rotationAngle = (Math.random() - 0.5) * Math.PI; // 랜덤한 각도
+                ctx.rotate(rotationAngle);
+        
+                if (shape.type === 'circle') {
+                    ctx.beginPath();
+                    ctx.fillStyle = 'black';
+                    ctx.arc(0, 1, 10, 0, 2 * Math.PI); // 원은 중심 좌표가 (0, 0)
+                    ctx.fill();
+                } else if (shape.type === 'triangle') {
+                    ctx.beginPath();
+                    ctx.fillStyle = 'black';
+                    ctx.moveTo(0, 0);
+                    ctx.lineTo(20, 0);
+                    ctx.lineTo(10, -20);
+                    ctx.fill();
+                } else if (shape.type === 'rectangle') {
+                    ctx.fillStyle = 'black';
+                    ctx.fillRect(-10, -10, 20, 20); // 사각형은 중심 좌표가 (0, 0)
+                }
+        
+                ctx.restore(); // 이전 상태로 복구
+
+                // 도형 이동
+                shape.x += shape.speed;
+                shape.y += shape.speed;
+
+                // 화면을 벗어나면 배열에서 삭제
+                if (shape.x > canvas.width) {
+                    shapes.splice(i, 1);
+                }
+                if (shape.y > canvas.width) {
+                    shapes.splice(i, 1);
+                }
+            }
+        }
+        function checklong(){
+            for (let i = 0; i < circleCount; i++) {
+                const circle = circles[i];
+            
+                for (let j = i + 1; j < circleCount; j++) {
+                    const randomCircle = circles[j];
+            
+                    // 두 도형의 중심 좌표 간 거리 계산
+                    const dx = randomCircle.x - circle.x;
+                    const dy = randomCircle.y - circle.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+            
+                    // 충돌 감지
+                    if (distance < circle.radius + randomCircle.radius) {
+                        circleCount ++;
+                    }
+                }
+            }
+        }
+        function checkgameover() {
+            let gameIsOver = false;
+        
+            for (let i = 0; i < circles.length; i++) {
+                const circle = circles[i];
+        
+                // 각 원과 도형 사이의 충돌 확인
+                for (let j = 0; j < shapes.length; j++) {
+                    const shape = shapes[j];
+        
+                    // 원과 도형의 중심 간 거리 계산
+                    const dx = Math.abs(circle.x - shape.x);
+                    const dy = Math.abs(circle.y - shape.y);
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+        
+                    // 원과 도형의 중심 간 거리가 반지름의 합보다 작으면 충돌로 간주
+                    if (distance < radius + shape.radius) {
+                        gameIsOver = true; // 게임 오버 상태 설정
+                    }
+                }
+            }
+        
+            if (gameIsOver) {
+                // 게임 오버 시 Canvas 중앙에 "Game Over" 문구 표시
+                const centerX = canvas.width / 2;
+                const centerY = canvas.height / 2;
+        
+                ctx.fillStyle = 'red';
+                ctx.textAlign = 'center';
+                ctx.fillText('Game Over', centerX, centerY);
+            }
+        }        
+        
+        
+      
+    
+        
+        function draw() {
+            requestAnimationFrame(draw);//- 백그라운드 동작 및 비활성화시 중지(성능 최적화)- 최대 1ms(1/1000s)로 제한되며 1초에 60번 동작
+            //requestAnimationFrame(반복할 함수)
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // 보간을 사용하여 현재 위치를 업데이트
+            for (let i = 0; i < circleCount; i++) {
+                const circle = circles[i];
+
+                if (i === 0) {
+                    // 첫 번째 원도 보간을 적용하여 마우스 위치로 이동
+                    const dx = mouseX - circle.x/1.2;
+                    const dy = mouseY - circle.y/1.2;
+                    circle.x += dx * easing;
+                    circle.y += dy * easing;
+                }else {
+                    const targetX = circles[i - 1].x - circleSpacing;
+                    const targetY = circles[i - 1].y;
+                    const dx = targetX - circle.x;
+                    const dy = targetY - circle.y;
+                    circle.x += dx * easing*4;
+                    circle.y += dy * easing*4;
+                }
+                
+                ctx.beginPath();
+                ctx.strokeStyle = 'black';
+                ctx.fillStyle = 'green';
+                ctx.arc(circle.x, circle.y, radius, 0, 2 * Math.PI);
+                ctx.fill();
+
+                checklong();
+                checkgameover();
+            }
+            
+        }
+        
+    draw();
+    drawTimer();
+    createRandomCircle();
+    drawRandomCircle();
+    createRandomShape();
+    drawShapes();
+    Snakelengthup();
+    </script>
+</body>
+</html>
+
+
