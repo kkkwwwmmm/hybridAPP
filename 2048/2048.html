@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2048 JOKER</title>
+    <style>
+        *{
+            background: #6FCEDB;
+        }
+        #wrap{
+            display: flex;
+            width: 224px;
+            height: 70px;
+            flex-wrap: wrap;
+        }
+        #best{
+            background: #d9d9d9;
+            width: 224px;
+            height: 36px;
+            position: relative;
+            top: 48px;
+            left: 64px;
+            border: #969595 solid;
+            border-width: 1px 1px 0px 1px;
+            font-style: italic;
+            font-size: 16px;
+            line-height: 36px;
+        }
+        #undo{
+            background: #d9d9d9;
+            width: 110px;
+            height: 32px;
+            border: #969595 solid 1px;
+            position: relative;
+            left: 64px;
+            top: 48px;
+            font-size: 16px;
+            text-align: center;
+            line-height: 32px;
+        }
+        #score{
+            background: #d9d9d9;
+            width: 111px;
+            height: 32px;
+            border: #969595 solid;
+            border-width: 1px 1px 1px 0px;
+            position: relative;
+            top:48px;
+            left:64px;
+        }
+        #frame{
+            background: #D1E190;
+            width: 328px;
+            height: 328px;
+            border-radius: 55px;
+            position: relative;
+            top:156px;
+            left:16px;
+            display: flex;
+            flex-wrap: wrap;
+        }
+        #frame div{
+            background: #E43C3C;
+            width: 64px;
+            height: 64px;
+            border-radius: 10px;
+        }
+        #p1{
+            margin-left: 24px;
+            margin-top: 24px;
+        }
+        #p2,#p3,#p4{
+            margin-left: 8px;
+            margin-top: 24px;
+        }
+        #p5,#p9,#p13{
+            margin-left: 24px;
+        }
+        #p6,#p7,#p8,#p10,#p11,#p12,#p14,#p15,#p16{
+            margin-left: 8px;
+        }
+    
+    </style>
+</head>
+<body>
+    <div id="wrap">
+        <div id="best">BEST SCORE:</div>
+        <div id="undo">UNDO</div><div id="score"></div>
+    </div>
+    <div id="frame">
+            <div id="p1"></div><div id="p2"></div><div id="p3"></div><div id="p4"></div>
+            <div id="p5"></div><div id="p6"></div><div id="p7"></div><div id="p8"></div>
+            <div id="p9"></div><div id="p10"></div><div id="p11"></div><div id="p12"></div>
+            <div id="p13"></div><div id="p14"></div><div id="p15"></div><div id="p16"></div>
+    </div>
+</body>
+</html>
